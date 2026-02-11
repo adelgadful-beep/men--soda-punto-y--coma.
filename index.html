@@ -1,0 +1,583 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, deleteDoc, query, getDocs, writeBatch, getDoc, addDoc, orderBy } from 'firebase/firestore';
+import { 
+  ShoppingCart, Edit2, Save, X, Utensils, Coffee, Send, Plus, 
+  Share2, MessageCircle, User, Lock, Sparkles, Volume2, 
+  Loader2, ChevronRight, Trash2, PlusCircle, Crown, Check, Camera, Image as ImageIcon,
+  ChevronLeft, Eye, EyeOff, RefreshCw, Minus, ChevronUp, Gift, Star, Award, CheckCircle2, History, Cloud
+} from 'lucide-react';
+
+// --- CONFIGURACIÓN DE FIREBASE ---
+const firebaseConfig = JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ID ÚNICO PARA TU SODA
+const appId = typeof __app_id !== 'undefined' ? __app_id : "soda-punto-y-coma-oficial-v2"; 
+
+// --- CONSTANTES GLOBALES ---
+const GLOBAL_EXTRAS = ["Queso", "Plátano Maduro", "Huevo", "Natilla", "Salchichón"];
+const EXTRA_PRICE = 500;
+
+const App = () => {
+  const apiKey = ""; 
+  const ADMIN_PIN = "02940";
+
+  // --- DATOS INICIALES (Fallback) ---
+  const pdfMenuData = {
+    "Desayunos": [
+      { id: "des-1", category: "Desayunos", name: "Pinto con: Carne, Pollo, Chuleta..", price: 3000, desc: "Pinto tradicional con proteína a elegir.", options: "Carne, Pollo, Chuleta", image: null },
+      { id: "des-2", category: "Desayunos", name: "Desayuno Económico", price: 2500, desc: "Pinto con dos acompañamientos incluidos.", options: "Huevo, Salchichón, Plátano Maduro, Natilla, Queso", isEconomico: true, image: null },
+      { id: "des-3", category: "Desayunos", name: "Pinto con huevo (2 Huevos Rancheros) y Pan.", price: 2900, desc: "Sabor tradicional de casa.", options: "", image: null }
+    ],
+    "Almuerzos": [
+      { id: "alm-1", category: "Almuerzos", name: "Casados: Filete de Pescado, Carne o Pollo en Salsa, Chuleta, Fajitas.", price: 3500, desc: "El tradicional almuerzo completo.", options: "Filete de Pescado, Carne en Salsa, Pollo en Salsa, Chuleta, Fajitas", image: null },
+      { id: "alm-2", category: "Almuerzos", name: "Arroz con Pollo o Cerdo.", price: 3500, desc: "Acompañado de ensalada y papas.", options: "Pollo, Cerdo", image: null },
+      { id: "alm-3", category: "Almuerzos", name: "Casado con Lengua en salsa.", price: 3800, desc: "Especialidad de la casa.", options: "", image: null },
+      { id: "alm-4", category: "Almuerzos", name: "Porciones solas: Carne, Pollo en Salsa, Lengua o Picadillo", price: 1500, desc: "Proteína extra.", options: "Carne, Pollo en Salsa, Lengua, Picadillo", image: null }
+    ],
+    "Adicionales": [
+      { id: "adi-1", category: "Adicionales", name: "Queso", price: 500, desc: "Porción de queso.", options: "", image: null },
+      { id: "adi-2", category: "Adicionales", name: "Plátano Maduro", price: 500, desc: "Porción de maduro.", options: "", image: null },
+      { id: "adi-3", category: "Adicionales", name: "Huevo", price: 500, desc: "Un huevo al gusto.", options: "", image: null },
+      { id: "adi-4", category: "Adicionales", name: "Natilla", price: 500, desc: "Porción de natilla.", options: "", image: null },
+      { id: "adi-5", category: "Adicionales", name: "Salchichón", price: 500, desc: "Un salchichón frito.", options: "", image: null }
+    ],
+    "Café": [
+      { id: "caf-1", category: "Café", name: "Café negro.", price: 700, desc: "Caliente y fresco.", options: "", image: null },
+      { id: "caf-2", category: "Café", name: "Café con leche.", price: 900, desc: "Cremoso.", options: "", image: null },
+      { id: "caf-3", category: "Café", name: "Aguadulce.", price: 700, desc: "Tradición costarricense.", options: "", image: null },
+      { id: "caf-4", category: "Café", name: "Aguadulce con leche.", price: 850, desc: "Suave y dulce.", options: "", image: null },
+      { id: "caf-5", category: "Café", name: "Empanadas.", price: 1200, desc: "Fritas al momento.", options: "Queso, Pollo, Carne", isEmpanada: true, image: null },
+      { id: "caf-6", category: "Café", name: "Empanadas arregladas.", price: 1500, desc: "Con ensalada y salsas.", options: "Queso, Pollo, Carne", isEmpanada: true, image: null },
+      { id: "caf-7", category: "Café", name: "Sándwich.", price: 2000, desc: "Ingredientes frescos.", options: "", image: null }
+    ],
+    "Menú Infantil": [
+      { id: "inf-1", category: "Menú Infantil", name: "Fajitas de Pollo con Papas.", price: 2000, desc: "Para los más pequeños.", options: "", image: null },
+      { id: "inf-2", category: "Menú Infantil", name: "Papas Fritas", price: 2000, desc: "Porción normal.", options: "", image: null },
+      { id: "inf-3", category: "Menú Infantil", name: "Papas Grandes", price: 1500, desc: "Porción para compartir.", options: "", image: null },
+      { id: "inf-4", category: "Menú Infantil", name: "Hamburguesa con Papas", price: 2500, desc: "Completa con papas.", options: "", image: null },
+      { id: "inf-5", category: "Menú Infantil", name: "Salchipapas Grandes", price: 2500, desc: "Favorito de los niños.", options: "", image: null }
+    ],
+    "Bebidas y batidos": [
+      { id: "beb-1", category: "Bebidas y batidos", name: "Te Frío........", price: 700, desc: "Refrescante.", options: "", image: null },
+      { id: "beb-2", category: "Bebidas y batidos", name: "Frescos Naturales.", price: 700, desc: "Batidos en agua.", options: "Cas, Mora, Piña, Frutas", image: null },
+      { id: "beb-3", category: "Bebidas y batidos", name: "Batidos en Leche (Mora, Fresa).", price: 2000, desc: "Mora o Fresa", options: "Mora, Fresa", image: null },
+      { id: "beb-4", category: "Bebidas y batidos", name: "(Crema o Horchata).", price: 1000, desc: "Crema o Horchata", options: "Crema, Horchata", image: null },
+      { id: "beb-5", category: "Bebidas y batidos", name: "Coca Cola, Fresca, Gin..", price: 1000, desc: "Refrescos gaseosos.", options: "Coca Cola, Fresca, Gin", image: null }
+    ]
+  };
+
+  const initialSpecials = [
+    { id: 'esp-1', category: "Especiales", name: "Plato del Día", price: 3000, desc: "Consulte por el plato especial de hoy.", options: "", image: null }
+  ];
+
+  // --- ESTADOS ---
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [menu, setMenu] = useState(pdfMenuData);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminTab, setAdminTab] = useState("menu"); 
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Fidelidad & Pedidos
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [loyaltyData, setLoyaltyData] = useState(null);
+  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState([]);
+
+  // Especiales
+  const [specials, setSpecials] = useState(initialSpecials);
+  const [currentSpecialIdx, setCurrentSpecialIdx] = useState(0);
+  const [showSpecialsSection, setShowSpecialsSection] = useState(true);
+
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("Almuerzos");
+  const [customerName, setCustomerName] = useState("");
+  const [orderType, setOrderType] = useState("Local");
+  const [optionModal, setOptionModal] = useState({ isOpen: false, item: null, selectedRequired: "", selectedExtras: {} });
+  const [statusMsg, setStatusMsg] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const colors = {
+    primary: "#8B5E3C",
+    secondary: "#D4A373",
+    bg: "#FAF7F2",
+    text: "#4A3728",
+    whatsapp: "#25D366",
+    gold: "#D4AF37"
+  };
+
+  // --- FIREBASE AUTH ---
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (e) { 
+        console.error("Auth Error:", e); 
+      }
+    };
+    initAuth();
+    const unsub = onAuthStateChanged(auth, setUser);
+    return () => unsub();
+  }, []);
+
+  // --- CARGA DE DATOS ---
+  useEffect(() => {
+    if (!user) return;
+    
+    const menuColl = collection(db, 'artifacts', appId, 'public', 'data', 'menuItems');
+    const menuUnsub = onSnapshot(menuColl, (snap) => {
+      if (!snap.empty) {
+        const items = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        const organized = items.reduce((acc, item) => {
+          if (!acc[item.category]) acc[item.category] = [];
+          acc[item.category].push(item);
+          return acc;
+        }, {});
+        setMenu(organized);
+      } else {
+        setMenu(pdfMenuData);
+      }
+      setLoading(false);
+    }, (err) => console.error("Menu fetch error:", err));
+
+    const specialsColl = collection(db, 'artifacts', appId, 'public', 'data', 'specials');
+    const specUnsub = onSnapshot(specialsColl, (snap) => {
+      if (!snap.empty) setSpecials(snap.docs.map(d => ({ ...d.data(), id: d.id })));
+    }, (err) => console.error("Specials fetch error:", err));
+
+    const settingsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
+    const settingsUnsub = onSnapshot(settingsDoc, (docSnap) => {
+      if (docSnap.exists()) {
+        const d = docSnap.data();
+        setShowSpecialsSection(d.showSpecialsSection ?? true);
+        setCurrentSpecialIdx(d.activeSpecialIdx ?? 0);
+      }
+    }, (err) => console.error("Settings fetch error:", err));
+
+    let ordersUnsub = () => {};
+    if (isAdmin) {
+      const ordersColl = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+      ordersUnsub = onSnapshot(ordersColl, (snap) => {
+        const ords = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        const pending = ords.filter(o => o.status === "pending").sort((a,b) => b.createdAt - a.createdAt);
+        setPendingOrders(pending);
+      }, (err) => console.error("Orders fetch error:", err));
+    }
+
+    return () => { 
+      menuUnsub(); 
+      specUnsub(); 
+      settingsUnsub(); 
+      ordersUnsub(); 
+    };
+  }, [user, isAdmin]);
+
+  // --- FIDELIDAD ---
+  useEffect(() => {
+    if (!user || customerPhone.length < 8) return;
+    const loyaltyDoc = doc(db, 'artifacts', appId, 'public', 'data', 'loyalty', customerPhone);
+    const loyaltyUnsub = onSnapshot(loyaltyDoc, (snap) => {
+      if (snap.exists()) setLoyaltyData(snap.data());
+      else setLoyaltyData({ points: 0, empanadasCount: 0, lunchesCount: 0 });
+    }, (err) => console.error("Loyalty fetch error:", err));
+    return () => loyaltyUnsub();
+  }, [user, customerPhone]);
+
+  const notify = (msg) => {
+    setStatusMsg(msg);
+    setTimeout(() => setStatusMsg(""), 3000);
+  };
+
+  const saveToCloud = async (coll, id, data) => {
+    if (!user) return;
+    setIsSaving(true);
+    try { 
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', coll, id.toString()), {
+        ...data,
+        updatedAt: Date.now()
+      }, { merge: true }); 
+    } 
+    catch (e) { 
+      console.error(e);
+      notify("Error de conexión al guardar"); 
+    }
+    finally { 
+      setIsSaving(false); 
+    }
+  };
+
+  const syncFullMenu = async () => {
+    if (!user) return;
+    setIsSyncing(true);
+    notify("Guardando cambios en el menú...");
+    try {
+      const batch = writeBatch(db);
+      Object.values(pdfMenuData).flat().forEach(item => {
+        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'menuItems', item.id);
+        batch.set(ref, item, { merge: true });
+      });
+      initialSpecials.forEach(spec => {
+        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'specials', spec.id);
+        batch.set(ref, spec, { merge: true });
+      });
+      await batch.commit();
+      notify("¡Menú sincronizado con éxito!");
+    } catch (e) { 
+      console.error(e);
+      notify("Error al sincronizar datos"); 
+    }
+    finally { setIsSyncing(false); }
+  };
+
+  // --- LÓGICA DE SELECCIÓN ---
+  const updateExtraQuantity = (extraName, delta) => {
+    setOptionModal(prev => {
+      const currentQty = prev.selectedExtras[extraName] || 0;
+      const newQty = Math.max(0, currentQty + delta);
+      const newExtras = { ...prev.selectedExtras };
+      if (newQty === 0) delete newExtras[extraName];
+      else newExtras[extraName] = newQty;
+      return { ...prev, selectedExtras: newExtras };
+    });
+  };
+
+  const finalizeSelection = () => {
+    const { item, selectedRequired, selectedExtras } = optionModal;
+    const totalExtraQty = Object.values(selectedExtras).reduce((a, b) => a + b, 0);
+
+    if (item.isEconomico && totalExtraQty < 2) return notify("Elija al menos 2 acompañamientos");
+    const optionsList = item.options ? item.options.split(',').map(o => o.trim()) : [];
+    if (optionsList.length > 0 && !item.isEconomico && !selectedRequired) return notify("Seleccione su opción principal");
+
+    let paidExtrasCount = item.isEconomico ? Math.max(0, totalExtraQty - 2) : totalExtraQty;
+    const unitPrice = item.price + (paidExtrasCount * EXTRA_PRICE);
+    
+    const extrasArray = Object.entries(selectedExtras)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, qty]) => qty > 1 ? `${name}(${qty})` : name);
+    
+    const selectionKey = `${item.id}-${selectedRequired}-${extrasArray.join('|')}`;
+    const existingIdx = cart.findIndex(c => c.cartId === selectionKey);
+
+    if (existingIdx > -1) {
+      const newCart = [...cart];
+      newCart[existingIdx].quantity += 1;
+      setCart(newCart);
+    } else {
+      setCart([...cart, { 
+        ...item, 
+        cartId: selectionKey, 
+        price: unitPrice, 
+        selectedVariant: selectedRequired,
+        selectedExtrasList: extrasArray,
+        quantity: 1
+      }]);
+    }
+    setOptionModal({ isOpen: false, item: null, selectedRequired: "", selectedExtras: {} });
+    notify("Agregado al pedido");
+  };
+
+  const handleAddToCart = (item) => {
+    if (item.category === "Almuerzos" || item.category === "Desayunos") {
+      setOptionModal({ isOpen: true, item: item, selectedRequired: "", selectedExtras: {} });
+    } else {
+      const existingIdx = cart.findIndex(c => c.id === item.id);
+      if (existingIdx > -1) {
+        const newCart = [...cart];
+        newCart[existingIdx].quantity += 1;
+        setCart(newCart);
+      } else {
+        setCart([...cart, { ...item, cartId: item.id, quantity: 1 }]);
+      }
+      notify(`+1 ${item.name}`);
+    }
+  };
+
+  const updateCartQuantity = (cartId, delta) => {
+    const newCart = cart.map(item => {
+      if (item.cartId === cartId) {
+        const newQty = item.quantity + delta;
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }).filter(item => item.quantity > 0);
+    setCart(newCart);
+  };
+
+  const sendWhatsApp = async () => {
+    if (!customerName.trim() || customerPhone.length < 8) return notify("Faltan datos de contacto");
+    if (!user) return;
+    const total = cart.reduce((a,b) => a + (b.price * b.quantity), 0);
+    try {
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), {
+        customerName, customerPhone, total, orderType, items: cart, status: "pending", createdAt: Date.now()
+      });
+      notify("¡Pedido enviado!");
+    } catch (e) { console.error(e); }
+
+    const detail = cart.map(i => {
+      const extras = i.selectedExtrasList?.length > 0 ? ` (+${i.selectedExtrasList.join(', ')})` : '';
+      const variant = i.selectedVariant ? ` (*${i.selectedVariant}*)` : '';
+      return `${i.quantity}x ${i.name}${variant}${extras} (₡${(i.price * i.quantity).toLocaleString()})`;
+    }).join('%0A');
+    window.open(`https://wa.me/50689112755?text=*NUEVO PEDIDO*%0A👤: ${customerName}%0A📞: ${customerPhone}%0A📍: ${orderType}%0A%0A*Detalle:*%0A${detail}%0A%0A*Total: ₡${total.toLocaleString()}*`);
+    setCart([]);
+    setIsCartOpen(false);
+  };
+
+  const confirmPaymentAndAwardPoints = async (order) => {
+    if (!user) return;
+    try {
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'loyalty', order.customerPhone);
+      const currentLoyaltySnap = await getDoc(docRef);
+      const currentLoyalty = currentLoyaltySnap.exists() ? currentLoyaltySnap.data() : { points: 0, empanadasCount: 0, lunchesCount: 0 };
+      
+      const pointsEarned = Math.floor(order.total / 1000);
+      const emps = order.items.filter(i => i.isEmpanada).reduce((a,b)=>a+b.quantity, 0);
+      const luncs = order.items.filter(i => i.category === "Almuerzos").reduce((a,b)=>a+b.quantity, 0);
+
+      await setDoc(docRef, {
+        points: (currentLoyalty.points || 0) + pointsEarned,
+        empanadasCount: (currentLoyalty.empanadasCount || 0) + emps,
+        lunchesCount: (currentLoyalty.lunchesCount || 0) + luncs,
+        lastUpdated: Date.now()
+      }, { merge: true });
+
+      await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', order.id), { status: "completed" });
+      notify("Puntos validados con éxito");
+    } catch (e) { 
+      console.error(e);
+      notify("Error al validar puntos"); 
+    }
+  };
+
+  const handleAdminLogin = () => {
+    if (pinInput === ADMIN_PIN) { setIsAdmin(true); setShowPinModal(false); }
+    else { notify("PIN incorrecto"); }
+    setPinInput("");
+  };
+
+  if (loading && !isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF7F2]">
+        <Loader2 className="animate-spin text-[#8B5E3C] mb-4" size={48} />
+        <p className="font-bold text-[#8B5E3C] uppercase tracking-widest text-[10px]">Cargando Menú Digital...</p>
+      </div>
+    );
+  }
+
+  const currentSpecial = specials[currentSpecialIdx] || initialSpecials[0];
+  const totalOrderAmount = cart.reduce((a, b) => a + (b.price * b.quantity), 0);
+
+  return (
+    <div className="min-h-screen pb-32" style={{ backgroundColor: colors.bg, color: colors.text, fontFamily: 'sans-serif' }}>
+      
+      {/* Notificaciones */}
+      {statusMsg && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-stone-800 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase shadow-xl animate-in slide-in-from-top-4">
+          {statusMsg}
+        </div>
+      )}
+
+      {/* Header */}
+      <header className="bg-white shadow-sm p-6 flex flex-col items-center text-center border-b-2" style={{ borderColor: colors.secondary }}>
+        <div className="w-14 h-14 bg-stone-100 rounded-full flex items-center justify-center mb-2 border border-stone-200">
+          <Utensils size={28} color={colors.primary} />
+        </div>
+        <h1 className="text-xl font-black italic tracking-tight" style={{ color: colors.primary }}>Soda Punto y Coma</h1>
+        <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Guápiles • Tradición y Sabor</p>
+        
+        {isAdmin && (
+          <div className="flex flex-col items-center mt-4 gap-3">
+            <div className="flex flex-wrap justify-center gap-2">
+              <button onClick={() => setAdminTab("menu")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1 ${adminTab === 'menu' ? 'bg-stone-900 text-white' : 'bg-stone-100'}`}><RefreshCw size={10}/> Menú</button>
+              <button onClick={() => setAdminTab("orders")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1 relative ${adminTab === 'orders' ? 'bg-stone-900 text-white' : 'bg-stone-100'}`}><CheckCircle2 size={10}/> Validar Puntos {pendingOrders.length > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-3 h-3 flex items-center justify-center rounded-full animate-pulse">{pendingOrders.length}</span>}</button>
+              <button onClick={() => setIsAdmin(false)} className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase bg-red-50 text-red-600">Salir</button>
+            </div>
+            
+            <div className="flex items-center gap-3">
+               <button onClick={() => setIsEditMode(!isEditMode)} className={`px-5 py-2 rounded-full text-[10px] font-black uppercase border-2 flex items-center gap-2 ${isEditMode ? 'border-green-500 text-green-600 bg-green-50' : 'border-stone-200 text-stone-400'}`}>
+                  {isEditMode ? <Cloud size={14} className="text-green-600" /> : <Cloud size={14}/>}
+                  {isEditMode ? (isSaving ? 'Guardando...' : 'Nube Sincronizada') : 'Entrar a Editar'}
+               </button>
+               {isEditMode && (
+                 <button onClick={syncFullMenu} disabled={isSyncing} className="p-2 bg-blue-50 text-blue-600 rounded-full border border-blue-200 shadow-sm"><Save size={14} className={isSyncing ? 'animate-spin' : ''}/></button>
+               )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {isAdmin && adminTab === "orders" ? (
+        <main className="p-4 max-w-2xl mx-auto space-y-4">
+          <div className="flex items-center gap-2 mb-4"><History className="text-stone-400" size={18} /><h2 className="text-sm font-black uppercase tracking-widest text-stone-400">Puntos Pendientes</h2></div>
+          {pendingOrders.length === 0 ? (
+             <div className="py-20 text-center text-stone-300 text-xs font-bold uppercase">No hay pedidos pendientes</div>
+          ) : (
+            pendingOrders.map(order => (
+              <div key={order.id} className="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm space-y-4 animate-in fade-in">
+                <div className="flex justify-between items-start border-b pb-3">
+                  <div><h3 className="font-black text-stone-800">{order.customerName}</h3><p className="text-[10px] text-stone-400 font-bold">{order.customerPhone}</p></div>
+                  <span className="bg-amber-100 text-amber-700 text-[9px] font-black px-3 py-1 rounded-full uppercase">₡{order.total.toLocaleString()}</span>
+                </div>
+                <div className="space-y-1">{order.items.map((it, idx) => (<div key={idx} className="text-[10px] text-stone-600">• {it.quantity}x {it.name}</div>))}</div>
+                <div className="flex gap-3 pt-2">
+                   <button onClick={() => confirmPaymentAndAwardPoints(order)} className="flex-1 bg-green-600 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"><Check size={14} strokeWidth={3} /> Validar Pago & Premiar</button>
+                   <button onClick={async () => await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', order.id))} className="p-3 bg-red-50 text-red-400 rounded-xl"><X size={16}/></button>
+                </div>
+              </div>
+            ))
+          )}
+        </main>
+      ) : (
+        <>
+          <section className="m-4 bg-white p-4 rounded-2xl border border-amber-100 shadow-sm relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><Award className="text-amber-500" size={18} /><h3 className="text-xs font-black uppercase tracking-tighter">Mi Club Soda</h3></div>{customerPhone.length >= 8 && (<button onClick={() => setShowLoyaltyModal(true)} className="text-[9px] font-bold text-amber-600 underline uppercase">Mi Progreso</button>)}</div>
+            {!loyaltyData ? (<input type="tel" placeholder="WhatsApp para puntos..." className="w-full bg-stone-50 rounded-xl px-4 py-3 text-xs outline-none border focus:border-amber-500 shadow-inner" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g,''))}/>) : (<div className="flex items-center justify-between bg-stone-50 p-4 rounded-xl"><div><p className="text-[9px] text-stone-400 font-black uppercase">Saldo Actual:</p><p className="text-2xl font-black text-stone-800">{loyaltyData.points} <span className="text-[10px] font-bold text-amber-500">Puntos</span></p></div><div className="text-right text-[8px] text-stone-300 font-bold uppercase italic leading-tight">Válido al confirmar pago</div></div>)}
+          </section>
+
+          <nav className="sticky top-0 z-20 bg-white/90 backdrop-blur-md shadow-sm overflow-x-auto p-2 scrollbar-hide flex gap-2 border-b">
+            {Object.keys(menu).map(cat => (<button key={cat} onClick={() => setActiveCategory(cat)} className={`px-4 py-2 rounded-full text-[10px] font-black uppercase whitespace-nowrap transition-all ${activeCategory === cat ? 'text-white shadow-md' : 'bg-stone-100 text-stone-400'}`} style={{ backgroundColor: activeCategory === cat ? colors.primary : '' }}>{cat}</button>))}
+          </nav>
+
+          {(showSpecialsSection || (isAdmin && isEditMode)) && currentSpecial && (
+             <section className={`m-4 relative transition-all duration-500 ${!showSpecialsSection && isAdmin && 'opacity-40 grayscale blur-[1px]'}`}>
+                <div className="bg-white rounded-2xl border border-amber-100 shadow-lg overflow-hidden flex flex-col relative">
+                   {isAdmin && isEditMode && (
+                      <div className="absolute top-2 right-2 z-30 flex gap-2">
+                         <button onClick={async () => { const ns = !showSpecialsSection; setShowSpecialsSection(ns); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { showSpecialsSection: ns }, { merge: true }); }} className={`p-2 rounded-full shadow-md ${showSpecialsSection ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>{showSpecialsSection ? <Eye size={18}/> : <EyeOff size={18}/>}</button>
+                      </div>
+                   )}
+                   <div className="w-full h-44 bg-stone-100 relative">
+                      {currentSpecial.image ? <img src={currentSpecial.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-stone-200"><ImageIcon size={40}/></div>}
+                      {isAdmin && isEditMode && (<label className="absolute inset-0 bg-black/40 flex items-center justify-center text-white cursor-pointer"><Camera size={32} /><input type="file" className="hidden" accept="image/*" onChange={(e) => { const reader = new FileReader(); reader.onloadend = () => saveToCloud('specials', currentSpecial.id, { ...currentSpecial, image: reader.result }); if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]); }} /></label>)}
+                      <div className="absolute top-3 left-3 bg-amber-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg">Plato del Día</div>
+                   </div>
+                   <div className="p-4">
+                      {isAdmin && isEditMode ? (
+                        <div className="space-y-2">
+                           <input className="w-full font-black text-lg border-b p-1 bg-stone-50" value={currentSpecial.name} onChange={(e) => saveToCloud('specials', currentSpecial.id, { ...currentSpecial, name: e.target.value })} />
+                           <textarea className="w-full text-xs italic text-stone-500 border-b p-1 bg-stone-50" value={currentSpecial.desc} onChange={(e) => saveToCloud('specials', currentSpecial.id, { ...currentSpecial, desc: e.target.value })} />
+                           <div className="flex items-center gap-2"><span className="text-xs font-black">₡</span><input type="number" className="w-20 font-black text-amber-600 border-b bg-stone-50" value={currentSpecial.price} onChange={(e) => saveToCloud('specials', currentSpecial.id, { ...currentSpecial, price: parseInt(e.target.value)||0 })} /></div>
+                        </div>
+                      ) : (
+                        <>
+                           <h2 className="text-xl font-black text-stone-800 leading-tight">{currentSpecial.name}</h2>
+                           <p className="text-[10px] text-stone-500 italic mt-1 leading-relaxed">{currentSpecial.desc}</p>
+                           <div className="flex justify-between items-center mt-3 pt-3 border-t border-stone-50"><span className="text-xl font-black text-amber-600">₡{currentSpecial.price.toLocaleString()}</span><button onClick={() => handleAddToCart(currentSpecial)} className="bg-amber-500 text-white px-6 py-2.5 rounded-xl shadow-md font-black text-[11px] flex items-center gap-2 active:scale-95 transition-all"><Plus size={16} strokeWidth={3} /> AGREGAR</button></div>
+                        </>
+                      )}
+                   </div>
+                </div>
+             </section>
+          )}
+
+          <main className="p-4 space-y-3 max-w-2xl mx-auto">
+            {menu[activeCategory]?.map((item) => (
+              <div key={item.id} className="bg-white rounded-xl shadow-sm border border-stone-100 flex overflow-hidden">
+                <div className="w-20 bg-stone-50 flex-shrink-0 relative">
+                  {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-stone-200"><ImageIcon size={20}/></div>}
+                  {isEditMode && (<label className="absolute inset-0 bg-black/40 flex items-center justify-center text-white cursor-pointer"><Camera size={16} /><input type="file" className="hidden" accept="image/*" onChange={(e) => { const reader = new FileReader(); reader.onloadend = () => saveToCloud('menuItems', item.id, { ...item, image: reader.result }); if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]); }} /></label>)}
+                  {item.isEmpanada && <div className="absolute bottom-1 right-1 bg-amber-500 text-white p-0.5 rounded-full shadow-sm"><Award size={10} /></div>}
+                </div>
+                <div className="p-3 flex-1 flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    {isEditMode ? (<div className="space-y-1"><input className="w-full font-bold border-b text-xs p-1" value={item.name} onChange={(e) => saveToCloud('menuItems', item.id, { ...item, name: e.target.value })} /><textarea className="w-full text-[10px] border-b p-1 resize-none" value={item.desc} onChange={(e) => saveToCloud('menuItems', item.id, { ...item, desc: e.target.value })} /></div>) : (<><h3 className="font-bold text-sm text-stone-800 leading-tight">{item.name}</h3><p className="text-[9px] text-stone-400 italic line-clamp-1 mt-0.5">{item.desc}</p></>)}
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {isEditMode ? (<div className="flex items-center gap-1"><input type="number" className="w-14 text-right font-bold text-xs" value={item.price} onChange={(e) => saveToCloud('menuItems', item.id, { ...item, price: parseInt(e.target.value)||0 })} /><button onClick={async () => await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menuItems', item.id))} className="text-red-400"><Trash2 size={12}/></button></div>) : (<button onClick={() => handleAddToCart(item)} className="p-2 bg-stone-100 rounded-lg active:scale-95 flex items-center gap-1"><span className="font-black text-[11px]">₡{item.price.toLocaleString()}</span><Plus size={14} className="text-stone-400" /></button>)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </main>
+        </>
+      )}
+
+      {cart.length > 0 && !isEditMode && !isAdmin && (
+        <>
+          <div onClick={() => setIsCartOpen(true)} className="fixed bottom-6 left-4 right-4 bg-stone-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-40 active:scale-95 transition-transform cursor-pointer border-t border-white/10"><div className="flex items-center gap-3"><div className="relative"><ShoppingCart size={20} /><span className="absolute -top-2 -right-2 bg-amber-50 text-black text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-stone-900">{cart.reduce((a,b) => a + b.quantity, 0)}</span></div><span className="text-xs font-black uppercase tracking-widest">Revisar Pedido</span></div><div className="flex items-center gap-2"><span className="font-black text-sm">₡{totalOrderAmount.toLocaleString()}</span><ChevronUp size={18} className="animate-bounce" /></div></div>
+          {isCartOpen && (
+            <div className="fixed inset-0 bg-stone-100 z-50 flex flex-col animate-in slide-in-from-bottom duration-300">
+              <div className="p-6 bg-white shadow-sm flex justify-between items-center border-b"><h3 className="font-black uppercase tracking-widest text-stone-400 text-xs">Su Orden</h3><button onClick={() => setIsCartOpen(false)} className="p-2 bg-stone-100 rounded-full text-stone-500"><X size={20}/></button></div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">{cart.map((i) => (<div key={i.cartId} className="bg-white p-4 rounded-2xl shadow-sm border border-stone-200"><div className="flex justify-between items-start mb-3"><div><div className="font-black text-stone-800 text-sm leading-tight">{i.name}</div>{i.selectedVariant && <div className="text-amber-600 text-[9px] font-bold mt-1 uppercase">[{i.selectedVariant}]</div>}{i.selectedExtrasList?.length > 0 && <div className="text-stone-400 text-[8px] mt-1 italic leading-tight">+ {i.selectedExtrasList.join(', ')}</div>}</div><span className="font-black text-xs text-stone-500">₡{(i.price * i.quantity).toLocaleString()}</span></div><div className="flex justify-between items-center"><div className="flex items-center bg-stone-50 border rounded-xl p-0.5 gap-4"><button onClick={() => updateCartQuantity(i.cartId, -1)} className="p-2 text-stone-400"><Minus size={14}/></button><span className="font-black text-xs w-4 text-center">{i.quantity}</span><button onClick={() => updateCartQuantity(i.cartId, 1)} className="p-2 text-stone-800"><Plus size={14}/></button></div></div></div>))}</div>
+              
+              {/* SECCIÓN DE DATOS RESALTADA (LETRAS NEGRAS Y VISIBLES) */}
+              <div className="p-6 bg-amber-50 border-t-4 border-amber-400 space-y-6 shadow-[0_-10px_50px_rgba(245,158,11,0.2)] rounded-t-[2.5rem] relative z-50">
+                <div className="text-center">
+                    <h3 className="text-xl font-black text-amber-900 uppercase tracking-widest mb-1">Datos para el Pedido</h3>
+                    <p className="text-[10px] font-bold text-amber-600 uppercase">Necesarios para la entrega</p>
+                </div>
+                
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-black uppercase text-amber-900 ml-2">
+                        <User size={20} className="text-amber-600"/> 
+                        Nombre del Cliente
+                    </label>
+                    <input 
+                        placeholder="Escriba su nombre aquí..." 
+                        className="w-full bg-white rounded-3xl px-6 py-5 text-xl font-black text-black outline-none border-4 border-amber-200 focus:border-amber-500 transition-all shadow-sm placeholder:text-stone-300" 
+                        value={customerName} 
+                        onChange={e => setCustomerName(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-black uppercase text-amber-900 ml-2">
+                        <MessageCircle size={20} className="text-green-600"/> 
+                        Número de WhatsApp
+                    </label>
+                    <input 
+                        type="tel" 
+                        placeholder="Ej: 8888 8888" 
+                        className="w-full bg-white rounded-3xl px-6 py-5 text-xl font-black text-black outline-none border-4 border-amber-200 focus:border-green-500 transition-all shadow-sm placeholder:text-stone-300" 
+                        value={customerPhone} 
+                        onChange={e => setCustomerPhone(e.target.value.replace(/\D/g,''))} 
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={sendWhatsApp} 
+                  disabled={!customerName || customerPhone.length < 8} 
+                  className={`w-full py-6 rounded-[2rem] text-white font-black text-xl shadow-xl flex items-center justify-center gap-3 transition-all transform ${(!customerName || customerPhone.length < 8) ? 'bg-stone-300' : 'bg-[#25D366] active:scale-95 shadow-green-500/30 ring-4 ring-green-500/20'}`}
+                >
+                  <Send size={32} strokeWidth={3} /> 
+                  {(!customerName || customerPhone.length < 8) ? 'COMPLETE SUS DATOS' : 'ENVIAR PEDIDO AHORA'}
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {showLoyaltyModal && loyaltyData && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[150] flex items-center justify-center p-6"><div className="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl animate-in zoom-in-95 relative"><button onClick={() => setShowLoyaltyModal(false)} className="absolute top-4 right-4 text-stone-300"><X size={24}/></button><div className="text-center mb-8"><div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-amber-200"><Award size={32} className="text-amber-500" /></div><h3 className="text-xl font-black text-stone-800">Mi Club Soda</h3><p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">{customerPhone}</p></div><div className="space-y-6"><div><div className="flex justify-between items-end mb-2"><span className="text-[9px] font-black uppercase text-stone-500 tracking-tighter">Empanadas (10+1 Gratis)</span><span className="text-xs font-black text-amber-600">{loyaltyData.empanadasCount % 10} / 10</span></div><div className="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden"><div className="bg-amber-500 h-full transition-all duration-1000" style={{ width: `${(loyaltyData.empanadasCount % 10) * 10}%` }}></div></div></div><div><div className="flex justify-between items-end mb-2"><span className="text-[9px] font-black uppercase text-stone-500 tracking-tighter">Premio Almuerzo (10+Café/Fresco)</span><span className="text-xs font-black text-green-600">{loyaltyData.lunchesCount % 10} / 10</span></div><div className="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden"><div className="bg-green-500 h-full transition-all duration-1000" style={{ width: `${(loyaltyData.lunchesCount % 10) * 10}%` }}></div></div></div><div className="bg-amber-50 p-4 rounded-2xl text-center border border-amber-100"><p className="text-[9px] font-black uppercase text-amber-600 mb-1">Saldo de Puntos</p><p className="text-3xl font-black text-stone-800">{loyaltyData.points}</p></div></div><button onClick={() => setShowLoyaltyModal(false)} className="w-full mt-8 py-4 bg-stone-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">VOLVER AL MENÚ</button></div></div>
+      )}
+
+      {optionModal.isOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[110] flex items-center justify-center p-4"><div className="bg-white p-6 rounded-[2.5rem] w-full max-w-md shadow-2xl animate-in zoom-in-95 max-h-[85vh] overflow-y-auto scrollbar-hide"><div className="flex justify-between items-start mb-4"><div><h3 className="text-lg font-black text-stone-800 leading-tight">{optionModal.item.name}</h3><p className="text-[10px] text-stone-400 italic mt-1">{optionModal.item.desc}</p></div><button onClick={() => setOptionModal({ isOpen: false, item: null, selectedRequired: "", selectedExtras: {} })} className="p-1 text-stone-300"><X size={24}/></button></div>{!optionModal.item.isEconomico && optionModal.item.options && (<div className="mb-6"><span className="text-[10px] font-black uppercase text-stone-400 mb-3 block">Seleccione su opción principal:</span><div className="grid grid-cols-1 gap-2">{optionModal.item.options.split(',').map((opt, idx) => { const text = opt.trim(); return (<button key={idx} onClick={() => setOptionModal(p=>({...p, selectedRequired: text}))} className={`w-full p-4 rounded-2xl text-left text-[11px] font-black border-2 transition-all ${optionModal.selectedRequired === text ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-stone-50 bg-stone-50 text-stone-500'}`}>{text}</button>);})}</div></div>)}<div className="mb-8"><span className="text-[10px] font-black uppercase text-stone-400 mb-3 block">{optionModal.item.isEconomico ? 'Elija sus 2 acompañamientos (Incluidos):' : '¿Gusta adicionales? (₡500 c/u):'}</span><div className="space-y-2">{(optionModal.item.isEconomico ? optionModal.item.options.split(',') : GLOBAL_EXTRAS).map((ex, idx) => { const name = ex.trim(); const qty = optionModal.selectedExtras[name] || 0; const totalItemsSelected = Object.values(optionModal.selectedExtras).reduce((a,b)=>a+b, 0); const isPaidExtra = optionModal.item.isEconomico ? (totalItemsSelected >= 2 && qty === 0) || (totalItemsSelected > 2) : true; return (<div key={idx} className={`w-full p-3 rounded-2xl border-2 flex justify-between items-center transition-all ${qty > 0 ? 'border-green-500 bg-green-50' : 'border-stone-50 bg-stone-50'}`}><div className="flex flex-col"><span className={`text-[11px] font-black ${qty > 0 ? 'text-green-800' : 'text-stone-500'}`}>{name}</span>{isPaidExtra && <span className="text-[8px] text-stone-400 uppercase font-bold">Adicional ₡500</span>}</div><div className="flex items-center gap-3 bg-white rounded-xl p-1 shadow-sm border border-stone-100"><button onClick={() => updateExtraQuantity(name, -1)} className="p-1.5 text-stone-300 hover:text-red-500"><Minus size={14}/></button><span className="font-black text-xs w-4 text-center text-stone-700">{qty}</span><button onClick={() => updateExtraQuantity(name, 1)} className="p-1.5 text-stone-800 hover:text-green-600"><Plus size={14}/></button></div></div>);})}</div></div><div className="sticky bottom-0 bg-white pt-4 border-t flex flex-col gap-3"><div className="flex justify-between items-center px-2"><span className="text-[10px] font-black uppercase text-stone-400 tracking-widest">Total del plato:</span><span className="text-xl font-black text-amber-600">₡{(optionModal.item.price + (optionModal.item.isEconomico ? Math.max(0, Object.values(optionModal.selectedExtras).reduce((a,b)=>a+b, 0) - 2) * EXTRA_PRICE : Object.values(optionModal.selectedExtras).reduce((a,b)=>a+b, 0) * EXTRA_PRICE)).toLocaleString()}</span></div><button onClick={finalizeSelection} className="w-full py-5 bg-stone-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">Confirmar Selección</button></div></div></div>
+      )}
+
+      {showPinModal && (<div className="fixed inset-0 bg-black/90 z-[120] flex items-center justify-center p-6"><div className="bg-white p-8 rounded-[2rem] w-full max-w-xs text-center shadow-2xl"><Lock className="text-stone-200 mx-auto mb-4" size={40} /><h3 className="text-lg font-black mb-4">Acceso Admin</h3><input type="password" inputMode="numeric" placeholder="•••••" className="w-full bg-stone-50 rounded-xl p-4 text-center text-3xl font-black mb-6 tracking-widest outline-none border border-transparent focus:border-stone-200" value={pinInput} onChange={e => setPinInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleAdminLogin()} autoFocus /><div className="flex gap-4"><button onClick={() => setShowPinModal(false)} className="flex-1 text-stone-400 font-bold text-[10px] uppercase">Cerrar</button><button onClick={handleAdminLogin} className="flex-1 bg-stone-900 text-white py-3 rounded-xl font-black text-[10px] uppercase">Entrar</button></div></div></div>)}
+
+      <footer className="py-20 text-center opacity-10">{!isAdmin && <button onClick={() => setShowPinModal(true)} className="text-[10px] font-black uppercase tracking-widest">Administración</button>}</footer>
+    </div>
+  );
+};
+
+export default App;
