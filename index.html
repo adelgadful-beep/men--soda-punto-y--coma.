@@ -3,49 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soda Punto y Coma - Guápiles</title>
+    <title>Soda Punto y Coma - Menú Profesional</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: sans-serif; background-color: #FAF7F2; color: #4A3728; }
-        .btn-pedir { background-color: #25D366; color: white; padding: 10px 20px; border-radius: 15px; font-weight: bold; font-size: 12px; }
-    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG4wt-voHOa2-Bv5z8d-jFZP47ouSpwwc",
+            authDomain: "soda-punto-y-coma.firebaseapp.com",
+            projectId: "soda-punto-y-coma",
+            storageBucket: "soda-punto-y-coma.firebasestorage.app",
+            messagingSenderId: "889504353305",
+            appId: "1:889504353305:web:3fd45d4886304cb8b8ae88"
+        };
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+    </script>
 </head>
 <body>
-    <div class="max-w-md mx-auto min-h-screen bg-white shadow-xl">
-        <header class="p-8 text-center border-b-4 border-[#D4A373]">
-            <h1 class="text-3xl font-black italic text-[#8B5E3C]">Soda Punto y Coma</h1>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mt-1">Guápiles • Tradición y Sabor</p>
-        </header>
+    <div id="root"></div>
 
-        <div class="p-4">
-            <div class="bg-[#8B5E3C]/10 p-4 rounded-2xl border border-[#8B5E3C]/20 text-center mb-6">
-                <span class="text-[10px] font-bold uppercase text-[#8B5E3C]">🌟 Especial de Hoy</span>
-                <p class="font-black text-lg">Plato del Día: ₡3,000</p>
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-            <h2 class="text-[#8B5E3C] font-black uppercase text-xs mb-4 border-b pb-2">Almuerzos</h2>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center p-4 bg-stone-50 rounded-3xl border border-stone-100">
-                    <div>
-                        <h3 class="font-bold text-sm">Casado Tradicional</h3>
-                        <p class="text-[#8B5E3C] font-black">₡3,500</p>
+        const App = () => {
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [activeCategory, setActiveCategory] = useState("Almuerzos");
+            const ADMIN_PIN = "02940";
+
+            const menuData = {
+                "Desayunos": [
+                    { name: "Pinto con Carne, Pollo o Chuleta", price: 3000 },
+                    { name: "Desayuno Económico", price: 2500, desc: "Pinto con 2 acompañamientos" },
+                    { name: "Pinto con 2 Huevos Rancheros", price: 2900 }
+                ],
+                "Almuerzos": [
+                    { name: "Casados (Pescado, Carne, Pollo, Chuleta)", price: 3500 },
+                    { name: "Arroz con Pollo o Cerdo", price: 3500 },
+                    { name: "Casado con Lengua en Salsa", price: 3800 },
+                    { name: "Porciones de Proteína sola", price: 1500 }
+                ],
+                "Café": [
+                    { name: "Empanadas Sencillas", price: 1200 },
+                    { name: "Empanadas Arregladas", price: 1500 },
+                    { name: "Café con Leche / Aguadulce", price: 900 }
+                ]
+            };
+
+            const handleAdminLogin = () => {
+                const pin = prompt("Ingrese el PIN de Administrador:");
+                if (pin === ADMIN_PIN) {
+                    setIsAdmin(true);
+                    alert("Modo Administrador activado");
+                } else {
+                    alert("PIN Incorrecto");
+                }
+            };
+
+            const realizarPedido = (item) => {
+                const msg = *NUEVO PEDIDO*%0A😋 Plato: ${item.name}%0A💰 Precio: ₡${item.price.toLocaleString()};
+                window.open(https://wa.me/50689112755?text=${msg});
+            };
+
+            return (
+                <div className="max-w-md mx-auto min-h-screen bg-[#FAF7F2] font-sans pb-20">
+                    <header className="bg-white p-6 text-center border-b-4 border-[#D4A373] shadow-md">
+                        <h1 className="text-2xl font-black italic text-[#8B5E3C]">Soda Punto y Coma</h1>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Guápiles • Sistema de Puntos</p>
+                    </header>
+
+                    <div className="p-4 flex gap-2 overflow-x-auto">
+                        {Object.keys(menuData).map(cat => (
+                            <button 
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all ${activeCategory === cat ? 'bg-[#8B5E3C] text-white shadow-lg' : 'bg-white text-gray-500 border border-gray-200'}}
+                            >
+                                {cat}
+                            </button>
+                        ))}
                     </div>
-                    <a href="https://wa.me/50689112755?text=Hola! Quiero pedir un Casado Tradicional" class="btn-pedir text-center">PEDIR 📲</a>
-                </div>
 
-                <div class="flex justify-between items-center p-4 bg-stone-50 rounded-3xl border border-stone-100">
-                    <div>
-                        <h3 class="font-bold text-sm">Arroz con Pollo o Cerdo</h3>
-                        <p class="text-[#8B5E3C] font-black">₡3,500</p>
-                    </div>
-                    <a href="https://wa.me/50689112755?text=Hola! Quiero pedir un Arroz con Pollo/Cerdo" class="btn-pedir text-center">PEDIR 📲</a>
-                </div>
-            </div>
-        </div>
+                    <main className="p-4 space-y-4">
+                        {menuData[activeCategory].map((item, i) => (
+                            <div key={i} className="bg-white p-5 rounded-3xl shadow-sm border border-stone-100 flex justify-between items-center group">
+                                <div>
+                                    <h3 className="font-bold text-sm text-[#4A3728]">{item.name}</h3>
+                                    <p className="text-[#8B5E3C] font-black text-lg">₡{item.price.toLocaleString()}</p>
+                                </div>
+                                <button 
+                                    onClick={() => realizarPedido(item)}
+                                    className="bg-[#25D366] hover:bg-[#1eb954] text-white px-4 py-3 rounded-2xl text-[10px] font-black shadow-md"
+                                >
+                                    PEDIR 📲
+                                </button>
+                            </div>
+                        ))}
+                    </main>
 
-        <footer class="p-10 text-center opacity-30 text-[9px] font-bold uppercase">
-            Soda Punto y Coma © 2026
-        </footer>
-    </div>
+                    <footer className="fixed bottom-0 w-full max-w-md bg-white p-4 border-t flex justify-around items-center shadow-2xl">
+                        <button onClick={() => alert("Pronto: Ver mis puntos")} className="text-gray-400 flex flex-col items-center">
+                            <span className="text-lg">⭐</span>
+                            <span className="text-[8px] font-bold uppercase">Mis Puntos</span>
+                        </button>
+                        <button onClick={handleAdminLogin} className="text-gray-400 flex flex-col items-center">
+                            <span className="text-lg">⚙️</span>
+                            <span className="text-[8px] font-bold uppercase">{isAdmin ? "Admin Activo" : "Admin"}</span>
+                        </button>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
