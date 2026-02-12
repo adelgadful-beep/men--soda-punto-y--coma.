@@ -4,41 +4,302 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Soda Punto y Coma</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #8B5E3C; --secondary: #D4A373; --bg: #FAF7F2; --white: #ffffff; --green: #25D366; --text: #4A3728; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); -webkit-tap-highlight-color: transparent; }
+        /* ESTILOS BÁSICOS (NO FALLAN) */
+        body {
+            font-family: sans-serif;
+            background-color: #FAF7F2;
+            margin: 0;
+            padding-bottom: 80px; /* Espacio para botones de abajo */
+            color: #4A3728;
+        }
+
+        /* ENCABEZADO */
+        .header {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 3px solid #D4A373;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        h1 { margin: 0; color: #8B5E3C; font-size: 22px; font-style: italic; }
+        p.sub { margin: 5px 0 0; font-size: 10px; color: #999; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* PESTAÑAS (TABS) */
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            background: white;
+            padding: 10px;
+            gap: 10px;
+            position: sticky;
+            top: 73px;
+            z-index: 90;
+            border-bottom: 1px solid #eee;
+        }
+        .tab-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            background: #eee;
+            color: #666;
+            font-weight: bold;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: #8B5E3C;
+            color: white;
+        }
+
+        /* CONTENEDOR DE PLATOS */
+        #app-content {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* TARJETA DE PLATO */
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card h3 { margin: 0 0 5px; font-size: 15px; color: #333; }
+        .card p { margin: 0; font-size: 11px; color: #777; }
+        .price { font-size: 16px; font-weight: bold; color: #8B5E3C; display: block; margin-top: 5px; }
         
-        /* HEADER */
-        .header { background: var(--white); padding: 15px; text-align: center; border-bottom: 3px solid var(--secondary); position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .header h1 { margin: 0; font-size: 22px; font-weight: 900; font-style: italic; color: var(--primary); }
-        .header p { margin: 4px 0 0; font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 1px; }
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; background: #ecfdf5; color: #059669; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; margin-top: 5px; border: 1px solid #a7f3d0; }
-
-        /* NAVEGACIÓN CATEGORÍAS */
-        .category-nav { display: flex; overflow-x: auto; padding: 10px 15px; gap: 8px; background: rgba(255,255,255,0.95); position: sticky; top: 82px; z-index: 40; scrollbar-width: none; }
-        .cat-btn { background: #E5E7EB; border: none; padding: 8px 16px; border-radius: 20px; color: #6B7280; font-size: 12px; font-weight: 700; white-space: nowrap; transition: 0.2s; }
-        .cat-btn.active { background: var(--primary); color: var(--white); transform: scale(1.05); box-shadow: 0 4px 6px rgba(139, 94, 60, 0.2); }
-
-        /* LISTA DE PLATOS */
-        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .menu-card { background: var(--white); border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
-        .item-title { font-size: 15px; font-weight: 700; margin: 0; color: var(--text); }
-        .item-desc { font-size: 11px; color: #666; margin: 4px 0 0; }
-        .item-price { display: block; font-size: 16px; font-weight: 800; color: var(--primary); margin-top: 6px; }
-        .btn-add { background: var(--green); color: white; width: 38px; height: 38px; border-radius: 12px; border: none; font-size: 18px; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2); }
-
-        /* PUNTOS */
-        .points-card { background: linear-gradient(135deg, #8B5E3C 0%, #D4A373 100%); color: white; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 10px 20px rgba(139, 94, 60, 0.3); margin: 20px; }
-        .star { font-size: 24px; color: rgba(255,255,255,0.3); margin: 0 2px; }
-        .star.filled { color: #FFD700; transform: scale(1.2); }
-
-        /* ADMIN */
-        .admin-box { text-align: center; padding: 40px 20px; }
-        .admin-btn { background: var(--primary); color: white; padding: 12px 30px; border-radius: 50px; border: none; font-weight: bold; font-size: 14px; margin-top: 15px; }
+        .btn-add {
+            background: #25D366;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+        }
 
         /* BARRA INFERIOR */
-        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
-        .nav-icon { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: #9CA3AF; font-size: 10px; font-weight: 700; width: 100%; }
-        .nav-icon.active { color: var(--pr…
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 200;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-btn i { font-size: 20px; margin-bottom: 3px; }
+        .nav-btn.active { color: #8B5E3C; }
+
+        /* VISTAS */
+        .view { display: none; }
+        .view.active { display: block; }
+        
+        /* PUNTOS */
+        .points-box {
+            background: linear-gradient(45deg, #8B5E3C, #D4A373);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Soda Punto y Coma</h1>
+        <p class="sub">Guápiles • Tradición y Sabor</p>
+    </div>
+
+    <div id="main-menu" class="view active">
+        <div class="tabs" id="tabs-container">
+            </div>
+        <div id="app-content">
+            <div style="text-align:center; padding:20px; color:#999;">Cargando menú...</div>
+        </div>
+    </div>
+
+    <div id="points-view" class="view">
+        <div style="padding: 20px;">
+            <h2 style="text-align:center; color:#8B5E3C;">Mis Puntos</h2>
+            <div class="points-box">
+                <div style="font-size:50px; font-weight:bold;" id="points-display">0</div>
+                <div>PUNTOS ACUMULADOS</div>
+                <div style="margin-top:10px;">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                </div>
+            </div>
+            <p style="text-align:center; font-size:12px; color:#777; margin-top:20px;">
+                Muestra esta pantalla al pagar.
+            </p>
+            <button onclick="addPointDemo()" style="display:block; margin:20px auto; padding:10px; background:#eee; border:none; border-radius:10px;">Simular Punto (Demo)</button>
+        </div>
+    </div>
+
+    <div id="admin-view" class="view">
+        <div style="padding:40px; text-align:center;">
+            <i class="fa-solid fa-lock" style="font-size:40px; color:#D4A373;"></i>
+            <h2 style="color:#8B5E3C;">Zona Privada</h2>
+            <button onclick="enterAdmin()" style="background:#8B5E3C; color:white; padding:10px 20px; border:none; border-radius:20px;">INGRESAR PIN</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="showView('main-menu', this)">
+            <i class="fa-solid fa-utensils"></i> Menú
+        </button>
+        <button class="nav-btn" onclick="showView('points-view', this)">
+            <i class="fa-solid fa-star"></i> Puntos
+        </button>
+        <button class="nav-btn" onclick="showView('admin-view', this)">
+            <i class="fa-solid fa-gear"></i> Admin
+        </button>
+    </div>
+
+    <script>
+        // DATOS
+        const MENU = {
+            "Almuerzos": [
+                {n: "Casado Tradicional", p: 3500, d: "Pescado, Carne, Pollo o Chuleta"},
+                {n: "Casado con Lengua", p: 3800, d: "Lengua en salsa"},
+                {n: "Arroz con Pollo/Cerdo", p: 3500, d: "Con papas y ensalada"},
+                {n: "Porción Sola", p: 1500, d: "Carne, Pollo, Lengua"}
+            ],
+            "Desayunos": [
+                {n: "Pinto Completo", p: 3000, d: "Con Carne, Pollo o Chuleta"},
+                {n: "Desayuno Económico", p: 2500, d: "Pinto + 2 acompañamientos"},
+                {n: "Pinto con Huevos", p: 2900, d: "2 Huevos y pan"}
+            ],
+            "Rápida": [
+                {n: "Hamburguesa + Papas", p: 2500, d: ""},
+                {n: "Salchipapas Grandes", p: 2500, d: ""},
+                {n: "Fajitas + Papas", p: 2000, d: ""}
+            ],
+            "Bebidas": [
+                {n: "Batidos en Leche", p: 2000, d: "Mora, Fresa, Crema"},
+                {n: "Gaseosas", p: 1000, d: "Coca Cola, Fresca"},
+                {n: "Café / Aguadulce", p: 700, d: "Negro o con leche"}
+            ],
+            "Extras": [
+                {n: "Empanada Arreglada", p: 1500, d: ""},
+                {n: "Empanada Sencilla", p: 1200, d: "Queso, Carne, Pollo"},
+                {n: "Adicionales", p: 500, d: "Queso, Huevo, Plátano"}
+            ]
+        };
+
+        // INICIAR
+        window.onload = function() {
+            renderTabs();
+            renderList("Almuerzos");
+            loadPoints();
+        };
+
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = "";
+            let first = true;
+            for(let cat in MENU) {
+                let btn = document.createElement('button');
+                btn.className = first ? "tab-btn active" : "tab-btn";
+                btn.innerText = cat;
+                btn.onclick = function() { 
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderList(cat);
+                };
+                container.appendChild(btn);
+                first = false;
+            }
+        }
+
+        function renderList(cat) {
+            const list = document.getElementById('app-content');
+            list.innerHTML = <h3 style='color:#8B5E3C; margin:10px 0;'>${cat}</h3>;
+            
+            MENU[cat].forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div>
+                        <h3>${item.n}</h3>
+                        <p>${item.d}</p>
+                        <span class="price">₡${item.p.toLocaleString()}</span>
+                    </div>
+                    <button class="btn-add" onclick="pedir('${item.n}', ${item.p})">+</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function pedir(plato, precio) {
+            // Pedido directo y simple para evitar errores
+            let msg = *PEDIDO*%0A🍽️ ${plato}%0A💰 ₡${precio};
+            window.open(https://wa.me/50689112755?text=${msg});
+        }
+
+        // CAMBIAR PANTALLAS (Menú - Puntos - Admin)
+        window.showView = function(viewId, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        };
+
+        // PUNTOS SIMPLES
+        function loadPoints() {
+            try {
+                let pts = localStorage.getItem('puntos_soda') || 0;
+                document.getElementById('points-display').innerText = pts;
+            } catch(e) { console.log("Error puntos"); }
+        }
+
+        window.addPointDemo = function() {
+            try {
+                let p = parseInt(localStorage.getItem('puntos_soda') || 0);
+                p++;
+                localStorage.setItem('puntos_soda', p);
+                loadPoints();
+            } catch(e) { alert("No se pueden guardar puntos en este modo."); }
+        };
+
+        window.enterAdmin = function() {
+            let pin = prompt("PIN:");
+            if(pin === "02940") alert("Para cambiar precios:\nEdita el archivo index.html en GitHub.");
+            else alert("PIN Incorrecto");
+        };
+    </script>
+
+</body>
+</html>
