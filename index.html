@@ -3,104 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soda Punto y Coma</title>
+    <title>Soda Punto y Coma - Menú Digital</title>
     <style>
-        body { font-family: sans-serif; background-color: #FAF7F2; margin: 0; padding: 0; color: #4A3728; }
-        .header { background-color: white; padding: 20px; text-align: center; border-bottom: 4px solid #D4A373; }
-        .header h1 { color: #8B5E3C; margin: 0; font-style: italic; font-size: 28px; }
-        .header p { color: #999; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+        /* Estilos Generales (Diseño) */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #FAF7F2; margin: 0; padding: 0; color: #4A3728; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 100vh; }
         
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        /* Encabezado */
+        header { background-color: #fff; padding: 30px 20px; text-align: center; border-bottom: 5px solid #D4A373; position: sticky; top: 0; z-index: 100; }
+        h1 { color: #8B5E3C; margin: 0; font-style: italic; font-size: 28px; font-weight: 900; }
+        .subtitle { color: #999; font-size: 10px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; margin-top: 5px; }
         
-        .categoria { color: #8B5E3C; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; text-transform: uppercase; }
+        /* Especial del Día */
+        .especial-box { background-color: #8B5E3C; color: white; margin: 20px; padding: 15px; border-radius: 15px; text-align: center; animation: pulse 2s infinite; }
+        .especial-title { font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+        .especial-price { font-size: 24px; font-weight: 900; margin-top: 5px; }
+
+        /* Categorías */
+        .category-title { background-color: #FAF7F2; color: #8B5E3C; padding: 10px 20px; font-size: 16px; font-weight: 800; text-transform: uppercase; border-left: 5px solid #8B5E3C; margin-top: 30px; }
+
+        /* Platos */
+        .item { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .item:last-child { border-bottom: none; }
+        .item-info { flex: 1; padding-right: 10px; }
+        .item-name { font-weight: 700; font-size: 15px; color: #333; display: block; }
+        .item-desc { font-size: 12px; color: #777; margin-top: 3px; display: block; }
+        .item-price { color: #8B5E3C; font-weight: 800; font-size: 16px; margin-top: 5px; display: block; }
         
-        .plato { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .plato-info h3 { margin: 0; font-size: 14px; font-weight: bold; }
-        .plato-info p { margin: 5px 0 0; color: #8B5E3C; font-weight: bold; font-size: 16px; }
-        
-        .btn-pedir { background-color: #25D366; color: white; text-decoration: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 5px; }
-        
-        .footer { text-align: center; font-size: 10px; color: #aaa; margin-top: 40px; padding-bottom: 20px; }
+        /* Botón Pedir */
+        .btn-pedir { background-color: #25D366; color: white; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; transition: transform 0.2s; box-shadow: 0 2px 5px rgba(37, 211, 102, 0.3); }
+        .btn-pedir:active { transform: scale(0.95); }
+
+        /* Footer */
+        footer { text-align: center; padding: 40px 20px; color: #ccc; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div class="header">
+<div class="container">
+    <header>
         <h1>Soda Punto y Coma</h1>
-        <p>Guápiles • Tradición y Sabor</p>
-    </div>
+        <p class="subtitle">Guápiles • Tradición y Sabor</p>
+    </header>
 
-    <div class="container">
-        
-        <div class="categoria">🍛 Almuerzos</div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Casado (Pescado/Carne/Pollo)</h3>
-                <p>₡3,500</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero pedir un Casado (₡3.500)" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Casado con Lengua en Salsa</h3>
-                <p>₡3,800</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero pedir Lengua en Salsa (₡3.800)" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Arroz con Pollo o Cerdo</h3>
-                <p>₡3,500</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero pedir Arroz con Pollo/Cerdo (₡3.500)" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-        <div class="categoria">☕ Desayunos</div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Pinto con Carne/Pollo/Chuleta</h3>
-                <p>₡3,000</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero un Pinto completo (₡3.000)" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Desayuno Económico</h3>
-                <p>₡2,500</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero un Desayuno Económico (₡2.500)" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-        <div class="categoria">🥟 Café y Extras</div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Empanada Arreglada</h3>
-                <p>₡1,500</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero una Empanada Arreglada" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-        <div class="plato">
-            <div class="plato-info">
-                <h3>Empanada Sencilla</h3>
-                <p>₡1,200</p>
-            </div>
-            <a href="https://wa.me/50689112755?text=Hola! Quiero una Empanada Sencilla" class="btn-pedir">PEDIR 📲</a>
-        </div>
-
-    </div>
-
-    <div class="footer">
-        © 2026 SODA PUNTO Y COMA<br>
+    <div class="especial-box">
+        <div class="especial-title">🌟 Plato del Día</div>
+        <div class="especial-price">₡3,000</div>
+        <div style="font-size: 12px; margin-top:5px; opacity:0.9">Pregunta por la opción de hoy</div>
         <br>
-        <span onclick="alert('Sistema de Puntos: Próximamente')" style="cursor:pointer">⭐ VER PUNTOS</span>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero pedir el Plato del Día (₡3.000)" style="background:white; color:#8B5E3C; padding:5px 15px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:12px;">PEDIR AHORA</a>
     </div>
+
+    <div class="category-title">🍛 Almuerzos</div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Casado Tradicional</span>
+            <span class="item-desc">Filete de Pescado, Carne, Pollo en Salsa, Chuleta o Fajitas</span>
+            <span class="item-price">₡3,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero un Casado Tradicional (₡3.500)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Arroz con Pollo o Cerdo</span>
+            <span class="item-price">₡3,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Arroz con Pollo/Cerdo (₡3.500)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Casado con Lengua</span>
+            <span class="item-desc">Exquisita lengua en salsa</span>
+            <span class="item-price">₡3,800</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Casado con Lengua (₡3.800)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Porciones Solas</span>
+            <span class="item-desc">Carne, Pollo, Lengua o Picadillo</span>
+            <span class="item-price">₡1,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero una porción sola (₡1.500)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="category-title">☕ Desayunos</div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Pinto Completo</span>
+            <span class="item-desc">Con Carne, Pollo o Chuleta</span>
+            <span class="item-price">₡3,000</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero un Pinto Completo (₡3.000)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Desayuno Económico</span>
+            <span class="item-desc">Pinto + 2 Acompañamientos (Huevo, Salchichón, Natilla, Queso)</span>
+            <span class="item-price">₡2,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Desayuno Económico (₡2.500)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Pinto con Huevos Rancheros</span>
+            <span class="item-desc">Incluye 2 huevos y pan</span>
+            <span class="item-price">₡2,900</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Pinto con Huevos Rancheros (₡2.900)" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="category-title">🍟 Menú Infantil y Rápido</div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Hamburguesa con Papas</span>
+            <span class="item-price">₡2,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Hamburguesa con Papas" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Salchipapas Grandes</span>
+            <span class="item-price">₡2,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Salchipapas Grandes" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Fajitas de Pollo con Papas</span>
+            <span class="item-price">₡2,000</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Fajitas con Papas" class="btn-pedir">PEDIR 📲</a>
+    </div>
+    
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Papas Fritas</span>
+            <span class="item-desc">Orden normal / Grandes (₡2,000)</span>
+            <span class="item-price">₡1,500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Papas Fritas" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Sándwich</span>
+            <span class="item-price">₡1,000</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero un Sándwich" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="category-title">🥤 Bebidas y Café</div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Batidos en Leche</span>
+            <span class="item-desc">Mora, Fresa, Crema, Horchata</span>
+            <span class="item-price">₡2,000</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero un Batido en Leche" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Empanadas</span>
+            <span class="item-desc">Sencilla (₡1,200) / Arreglada (₡1,500)</span>
+            <span class="item-price">₡1,200</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Empanadas" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <div class="item">
+        <div class="item-info">
+            <span class="item-name">Café / Aguadulce</span>
+            <span class="item-desc">Negro (₡700) / Con Leche (₡900)</span>
+            <span class="item-price">₡700+</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero Café o Aguadulce" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+     <div class="item">
+        <div class="item-info">
+            <span class="item-name">Gaseosas</span>
+            <span class="item-desc">Coca Cola, Fresca, Ginger</span>
+            <span class="item-price">₡1,000</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero una Gaseosa" class="btn-pedir">PEDIR 📲</a>
+    </div>
+    
+     <div class="item">
+        <div class="item-info">
+            <span class="item-name">Adicionales</span>
+            <span class="item-desc">Queso, Plátano, Huevo, Natilla...</span>
+            <span class="item-price">₡500</span>
+        </div>
+        <a href="https://wa.me/50689112755?text=Hola! Quiero un adicional" class="btn-pedir">PEDIR 📲</a>
+    </div>
+
+    <footer>
+        © 2026 Soda Punto y Coma<br>Guápiles, Limón
+    </footer>
+</div>
 
 </body>
 </html>
