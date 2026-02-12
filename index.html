@@ -2,220 +2,211 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soda Punto y Coma - Menú Digital</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Soda Punto y Coma - App Oficial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Estilos Generales (Diseño) */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #FAF7F2; margin: 0; padding: 0; color: #4A3728; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #fff; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 100vh; }
-        
-        /* Encabezado */
-        header { background-color: #fff; padding: 30px 20px; text-align: center; border-bottom: 5px solid #D4A373; position: sticky; top: 0; z-index: 100; }
-        h1 { color: #8B5E3C; margin: 0; font-style: italic; font-size: 28px; font-weight: 900; }
-        .subtitle { color: #999; font-size: 10px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; margin-top: 5px; }
-        
-        /* Especial del Día */
-        .especial-box { background-color: #8B5E3C; color: white; margin: 20px; padding: 15px; border-radius: 15px; text-align: center; animation: pulse 2s infinite; }
-        .especial-title { font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
-        .especial-price { font-size: 24px; font-weight: 900; margin-top: 5px; }
+        /* --- ESTILOS VISUALES DE ALTA CALIDAD (DISEÑO APP) --- */
+        :root {
+            --primary: #8B5E3C; /* Café Punto y Coma */
+            --secondary: #D4A373; /* Dorado suave */
+            --bg: #FAF7F2; /* Crema fondo */
+            --white: #ffffff;
+            --green: #25D366; /* WhatsApp */
+            --text: #4A3728;
+            --gray: #9CA3AF;
+        }
 
-        /* Categorías */
-        .category-title { background-color: #FAF7F2; color: #8B5E3C; padding: 10px 20px; font-size: 16px; font-weight: 800; text-transform: uppercase; border-left: 5px solid #8B5E3C; margin-top: 30px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 0; padding-bottom: 90px; color: var(--text); }
 
-        /* Platos */
-        .item { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .item:last-child { border-bottom: none; }
+        /* HEADER FIJO */
+        .header { background: var(--white); padding: 15px 20px; text-align: center; border-bottom: 3px solid var(--secondary); position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .header h1 { margin: 0; font-size: 22px; font-weight: 900; font-style: italic; color: var(--primary); }
+        .header p { margin: 4px 0 0; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); font-weight: bold; }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; background: #ecfdf5; color: #059669; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 800; margin-top: 5px; border: 1px solid #a7f3d0; }
+
+        /* NAVEGACIÓN SUPERIOR (SCROLL) */
+        .category-nav { display: flex; overflow-x: auto; padding: 12px 15px; gap: 8px; background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); position: sticky; top: 78px; z-index: 40; scrollbar-width: none; }
+        .category-nav::-webkit-scrollbar { display: none; }
+        .cat-btn { background: #E5E7EB; border: none; padding: 8px 16px; border-radius: 20px; color: #6B7280; font-size: 12px; font-weight: 700; white-space: nowrap; transition: all 0.2s; }
+        .cat-btn.active { background: var(--primary); color: var(--white); box-shadow: 0 4px 6px rgba(139, 94, 60, 0.2); transform: scale(1.05); }
+
+        /* CONTENEDOR PRINCIPAL */
+        .main-container { padding: 15px; max-width: 600px; margin: 0 auto; min-height: 60vh; }
+        
+        /* TARJETAS DE MENÚ */
+        .menu-card { background: var(--white); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; transition: transform 0.1s; }
+        .menu-card:active { transform: scale(0.98); }
         .item-info { flex: 1; padding-right: 10px; }
-        .item-name { font-weight: 700; font-size: 15px; color: #333; display: block; }
-        .item-desc { font-size: 12px; color: #777; margin-top: 3px; display: block; }
-        .item-price { color: #8B5E3C; font-weight: 800; font-size: 16px; margin-top: 5px; display: block; }
+        .item-title { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; }
+        .item-desc { font-size: 11px; color: #6B7280; margin: 4px 0 0; line-height: 1.4; }
+        .item-price { display: block; font-size: 16px; font-weight: 800; color: var(--primary); margin-top: 6px; }
+        .btn-add { background: var(--green); color: white; width: 38px; height: 38px; border-radius: 12px; border: none; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2); cursor: pointer; }
+
+        /* SECCIONES OCULTAS */
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+
+        /* MODAL (VENTANA EMERGENTE) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; justify-content: center; }
+        .modal-content { background: var(--white); width: 100%; max-width: 500px; border-radius: 24px 24px 0 0; padding: 25px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .modal-title { font-size: 18px; font-weight: 800; color: var(--primary); margin: 0; }
+        .modal-price { font-size: 14px; color: var(--gray); font-weight: 600; }
         
-        /* Botón Pedir */
-        .btn-pedir { background-color: #25D366; color: white; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; transition: transform 0.2s; box-shadow: 0 2px 5px rgba(37, 211, 102, 0.3); }
-        .btn-pedir:active { transform: scale(0.95); }
+        .option-group { margin-bottom: 20px; }
+        .option-header { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #9CA3AF; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
+        
+        /* Inputs bonitos */
+        .check-item { display: flex; align-items: center; padding: 10px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; transition: all 0.2s; }
+        .check-item.selected { border-color: var(--primary); background: #fff8f1; }
+        .check-item input { margin-right: 10px; accent-color: var(--primary); transform: scale(1.2); }
+        .check-item label { flex: 1; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .extra-price { font-size: 12px; font-weight: 700; color: var(--primary); }
 
-        /* Footer */
-        footer { text-align: center; padding: 40px 20px; color: #ccc; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-confirm { background: var(--green); color: white; width: 100%; padding: 16px; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        
+        /* SISTEMA DE PUNTOS (LOCAL) */
+        .points-card { background: linear-gradient(135deg, #8B5E3C 0%, #D4A373 100%); color: white; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(139, 94, 60, 0.3); position: relative; overflow: hidden; }
+        .points-big { font-size: 48px; font-weight: 900; margin: 10px 0; }
+        .points-text { font-size: 14px; opacity: 0.9; }
+        .stars-container { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        .star { font-size: 24px; color: rgba(255,255,255,0.3); transition: all 0.3s; }
+        .star.filled { color: #FFD700; transform: scale(1.2); text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        /* BARRA INFERIOR */
+        .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+        .nav-icon { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #9CA3AF; font-size: 10px; font-weight: 700; text-transform: uppercase; width: 100%; }
+        .nav-icon i { font-size: 20px; margin-bottom: 2px; }
+        .nav-icon.active { color: var(--primary); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Soda Punto y Coma</h1>
-        <p class="subtitle">Guápiles • Tradición y Sabor</p>
-    </header>
-
-    <div class="especial-box">
-        <div class="especial-title">🌟 Plato del Día</div>
-        <div class="especial-price">₡3,000</div>
-        <div style="font-size: 12px; margin-top:5px; opacity:0.9">Pregunta por la opción de hoy</div>
-        <br>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero pedir el Plato del Día (₡3.000)" style="background:white; color:#8B5E3C; padding:5px 15px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:12px;">PEDIR AHORA</a>
-    </div>
-
-    <div class="category-title">🍛 Almuerzos</div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Casado Tradicional</span>
-            <span class="item-desc">Filete de Pescado, Carne, Pollo en Salsa, Chuleta o Fajitas</span>
-            <span class="item-price">₡3,500</span>
+    <div id="view-menu" class="view-section active">
+        <div class="header">
+            <div class="status-badge"><i class="fa-solid fa-store"></i> ABIERTO</div>
+            <h1>Soda Punto y Coma</h1>
+            <p>Guápiles • Tradición y Sabor</p>
         </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero un Casado Tradicional (₡3.500)" class="btn-pedir">PEDIR 📲</a>
+
+        <div class="category-nav" id="categoryNav">
+            </div>
+
+        <div class="main-container" id="menuContainer">
+            </div>
     </div>
 
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Arroz con Pollo o Cerdo</span>
-            <span class="item-price">₡3,500</span>
+    <div id="view-points" class="view-section">
+        <div class="header">
+            <h1>Mis Puntos</h1>
+            <p>Programa de Lealtad</p>
         </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Arroz con Pollo/Cerdo (₡3.500)" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Casado con Lengua</span>
-            <span class="item-desc">Exquisita lengua en salsa</span>
-            <span class="item-price">₡3,800</span>
+        <div class="main-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div class="points-card">
+                <div style="font-size:12px; font-weight:bold; letter-spacing:1px; opacity:0.8">TARJETA DIGITAL</div>
+                <div class="points-big" id="displayPoints">0</div>
+                <div class="points-text">PUNTOS ACUMULADOS</div>
+                <div class="stars-container" id="starsContainer">
+                    <i class="fa-solid fa-star star"></i>
+                    <i class="fa-solid fa-star star"></i>
+                    <i class="fa-solid fa-star star"></i>
+                    <i class="fa-solid fa-star star"></i>
+                    <i class="fa-solid fa-star star"></i>
+                </div>
+                <p style="font-size:10px; margin-top:15px; opacity:0.7">*Al llegar a 5 puntos, canjea una regalía.</p>
+            </div>
+            <p style="text-align:center; color:#888; font-size:12px; max-width:250px;">
+                Muestra esta pantalla en caja para sumar puntos en tu próxima visita.
+            </p>
+            <button onclick="addPointDemo()" style="margin-top:20px; padding:10px; background:#eee; border:none; border-radius:10px; font-size:10px;">+ Simular Punto (Demo)</button>
         </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Casado con Lengua (₡3.800)" class="btn-pedir">PEDIR 📲</a>
     </div>
 
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Porciones Solas</span>
-            <span class="item-desc">Carne, Pollo, Lengua o Picadillo</span>
-            <span class="item-price">₡1,500</span>
+    <div id="view-admin" class="view-section">
+        <div class="header">
+            <h1>Administración</h1>
         </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero una porción sola (₡1.500)" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="category-title">☕ Desayunos</div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Pinto Completo</span>
-            <span class="item-desc">Con Carne, Pollo o Chuleta</span>
-            <span class="item-price">₡3,000</span>
+        <div class="main-container" style="text-align: center; padding-top: 50px;">
+            <i class="fa-solid fa-lock" style="font-size: 40px; color: var(--secondary); margin-bottom: 20px;"></i>
+            <h3 style="color: var(--primary);">Acceso Restringido</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Área exclusiva para Arturo Delgado.</p>
+            <button onclick="loginAdmin()" style="background: var(--primary); color: white; padding: 12px 30px; border-radius: 50px; border: none; font-weight: bold; font-size: 14px;">INGRESAR CON PIN</button>
         </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero un Pinto Completo (₡3.000)" class="btn-pedir">PEDIR 📲</a>
     </div>
 
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Desayuno Económico</span>
-            <span class="item-desc">Pinto + 2 Acompañamientos (Huevo, Salchichón, Natilla, Queso)</span>
-            <span class="item-price">₡2,500</span>
+    <div class="bottom-bar">
+        <button class="nav-icon active" onclick="switchTab('menu', this)">
+            <i class="fa-solid fa-utensils"></i> Menú
+        </button>
+        <button class="nav-icon" onclick="switchTab('points', this)">
+            <i class="fa-solid fa-star"></i> Puntos
+        </button>
+        <button class="nav-icon" onclick="switchTab('admin', this)">
+            <i class="fa-solid fa-gear"></i> Admin
+        </button>
+    </div>
+
+    <div class="modal-overlay" id="selectionModal" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="mTitle">Nombre Plato</h2>
+                    <span class="modal-price" id="mBasePrice">₡0</span>
+                </div>
+                <button onclick="closeModal()" style="background:none; border:none; color:#999; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="modalBody"></div>
+
+            <div class="option-group">
+                <span class="option-header">Notas / Instrucciones</span>
+                <textarea id="mNotes" placeholder="Ej: Sin cebolla, salsa aparte..." style="width:100%; padding:12px; border:1px solid #eee; border-radius:12px; font-family:inherit;"></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:10px;">
+                <span style="font-weight:bold; color:var(--text);">Total a pagar:</span>
+                <span style="font-size:20px; font-weight:900; color:var(--primary);" id="mTotal">₡0</span>
+            </div>
+
+            <button class="btn-confirm" onclick="sendOrder()">
+                CONFIRMAR PEDIDO <i class="fa-brands fa-whatsapp"></i>
+            </button>
         </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Desayuno Económico (₡2.500)" class="btn-pedir">PEDIR 📲</a>
     </div>
 
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Pinto con Huevos Rancheros</span>
-            <span class="item-desc">Incluye 2 huevos y pan</span>
-            <span class="item-price">₡2,900</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Pinto con Huevos Rancheros (₡2.900)" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="category-title">🍟 Menú Infantil y Rápido</div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Hamburguesa con Papas</span>
-            <span class="item-price">₡2,500</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Hamburguesa con Papas" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Salchipapas Grandes</span>
-            <span class="item-price">₡2,500</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Salchipapas Grandes" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Fajitas de Pollo con Papas</span>
-            <span class="item-price">₡2,000</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Fajitas con Papas" class="btn-pedir">PEDIR 📲</a>
-    </div>
-    
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Papas Fritas</span>
-            <span class="item-desc">Orden normal / Grandes (₡2,000)</span>
-            <span class="item-price">₡1,500</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Papas Fritas" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Sándwich</span>
-            <span class="item-price">₡1,000</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero un Sándwich" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="category-title">🥤 Bebidas y Café</div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Batidos en Leche</span>
-            <span class="item-desc">Mora, Fresa, Crema, Horchata</span>
-            <span class="item-price">₡2,000</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero un Batido en Leche" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Empanadas</span>
-            <span class="item-desc">Sencilla (₡1,200) / Arreglada (₡1,500)</span>
-            <span class="item-price">₡1,200</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Empanadas" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <div class="item">
-        <div class="item-info">
-            <span class="item-name">Café / Aguadulce</span>
-            <span class="item-desc">Negro (₡700) / Con Leche (₡900)</span>
-            <span class="item-price">₡700+</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero Café o Aguadulce" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-     <div class="item">
-        <div class="item-info">
-            <span class="item-name">Gaseosas</span>
-            <span class="item-desc">Coca Cola, Fresca, Ginger</span>
-            <span class="item-price">₡1,000</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero una Gaseosa" class="btn-pedir">PEDIR 📲</a>
-    </div>
-    
-     <div class="item">
-        <div class="item-info">
-            <span class="item-name">Adicionales</span>
-            <span class="item-desc">Queso, Plátano, Huevo, Natilla...</span>
-            <span class="item-price">₡500</span>
-        </div>
-        <a href="https://wa.me/50689112755?text=Hola! Quiero un adicional" class="btn-pedir">PEDIR 📲</a>
-    </div>
-
-    <footer>
-        © 2026 Soda Punto y Coma<br>Guápiles, Limón
-    </footer>
-</div>
-
-</body>
-</html>
+    <script>
+        /* --- 1. CONFIGURACIÓN Y DATOS (PDF) --- */
+        const MENU = {
+            "Almuerzos": [
+                { name: "Casado Tradicional", price: 3500, desc: "Arroz, frijoles, picadillo, ensalada y plátano", type: "select", options: ["Filete de Pescado", "Carne en Salsa", "Pollo en Salsa", "Chuleta", "Fajitas de Pollo"] },
+                { name: "Casado con Lengua", price: 3800, desc: "Especialidad: Lengua en salsa", type: "simple" },
+                { name: "Arroz con Pollo/Cerdo", price: 3500, desc: "Con papas fritas y ensalada", type: "select", options: ["Arroz con Pollo", "Arroz con Cerdo"] },
+                { name: "Porción Sola", price: 1500, desc: "Solo la proteína", type: "select", options: ["Carne", "Pollo", "Lengua", "Picadillo"] }
+            ],
+            "Desayunos": [
+                { name: "Pinto Completo", price: 3000, desc: "Gallo Pinto con proteína a elegir", type: "select", options: ["Carne en Salsa", "Pollo en Salsa", "Chuleta"] },
+                { name: "Desayuno Económico", price: 2500, desc: "Pinto + 2 acompañamientos", type: "multi", max: 2, options: ["Huevo Frito", "Huevo Revuelto", "Salchichón", "Natilla", "Queso", "Plátano Maduro"] },
+                { name: "Pinto con Huevos", price: 2900, desc: "2 Huevos Rancheros y pan", type: "simple" }
+            ],
+            "Rápida e Infantil": [
+                { name: "Hamburguesa con Papas", price: 2500, desc: "Clásica con torta de carne", type: "simple" },
+                { name: "Salchipapas Grandes", price: 2500, desc: "Papas fritas con salchicha", type: "simple" },
+                { name: "Fajitas con Papas", price: 2000, desc: "Tiras de pollo empanizado", type: "simple" },
+                { name: "Papas Fritas", price: 1500, desc: "Orden regular", type: "simple" },
+                { name: "Sándwich", price: 1000, desc: "Jamón y queso", type: "simple" }
+            ],
+            "Bebidas": [
+                { name: "Batidos en Leche", price: 2000, desc: "Deliciosos batidos naturales", type: "select", options: ["Mora", "Fresa", "Crema", "Horchata"] },
+                { name: "Frescos Naturales", price: 1000, desc: "Frutas de temporada (Agua)", type: "simple" },
+                { name: "Gaseosas", price: 1000, desc: "355ml", type: "select", options: ["Coca Cola", "Fresca", "Ginger"] },
+                { name: "Café / Aguadulce", price: 700, desc: "Caliente", type: "select", options: ["Café Negro (₡700)", "Café con Leche (₡900)", "Aguadulce (₡700)", "Aguadulce con Leche (₡850)"] }
+            ],
+            "Extras": [
+                { name: "Empanada Arreglada", price: 1500, desc: "Con repollo y salsas", type: "simple" },
+                { name: "Empanada Sencilla", price: 1200, desc: "Queso, Carne o Pollo", type: "select", options: ["Queso", "Carne", "Pollo"] },
+                { name: "Adicionales", price: 500, desc: "Agrega a tu plato", type: "select",
